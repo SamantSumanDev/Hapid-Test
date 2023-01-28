@@ -1,2 +1,2 @@
 # Hapid-Test
-Hapid Test
+Hapid
