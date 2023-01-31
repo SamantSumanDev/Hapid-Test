@@ -1,12 +1,10 @@
-package com.samant.hapidtest;
+package com.samant.hapidtest.profile;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -17,53 +15,42 @@ import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.card.MaterialCardView;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.location.aravind.getlocation.GeoLocator;
+import com.samant.hapidtest.BaseActivity;
+import com.samant.hapidtest.R;
+import com.samant.hapidtest.login.LoginActivity;
+import com.samant.hapidtest.model.createProfileModel;
 import com.samant.hapidtest.retrofit.ApiInterface;
 import com.samant.hapidtest.retrofit.ApiUtils;
+import com.samant.hapidtest.sessionManagement.SessionManagement;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CreateProfileActivity extends AppCompatActivity {
+public class CreateProfileActivity extends BaseActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final int PERMISSION_REQUEST_CODE = 200;
     AppCompatEditText edtFirstName, edtLastName, edtPhone, edtPostCode;
@@ -75,19 +62,19 @@ public class CreateProfileActivity extends AppCompatActivity {
     AppCompatImageView back_arrow;
     private static final int PICK_IMAGE = 100;
     SessionManagement sessionManagement;
-
-    //  List<profileModel> itemList = new ArrayList<>();
+    createProfileModel createprofile = new createProfileModel();
     ProgressBar pbr;
-
+    String city;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_profile);
         sessionManagement = new SessionManagement(getApplicationContext());
         Objects.requireNonNull(getSupportActionBar()).hide();
         init();
 
+        // check profile submited or not if yes then get from session management.
         if (sessionManagement.getFirstName() != null && sessionManagement.getLastName() != null && sessionManagement.getPhone() != null && sessionManagement.getCity() != null && sessionManagement.getPostCode() != null) {
             btnSubmit.setVisibility(View.GONE);
             pbr.setVisibility(View.GONE);
@@ -101,7 +88,6 @@ public class CreateProfileActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e(" Created Profile", e.getMessage());
             }
-
         }
 
         back_arrow.setOnClickListener(new View.OnClickListener() {
@@ -115,7 +101,7 @@ public class CreateProfileActivity extends AppCompatActivity {
             }
         });
 
-
+        // check profile pic uploaded or not if yes then get from session management.
         try {
             String uploadedPic = sessionManagement.getProfilePic();
             if (!uploadedPic.equalsIgnoreCase("")) {
@@ -131,7 +117,6 @@ public class CreateProfileActivity extends AppCompatActivity {
 
             } else {
             }
-
             String uloadedCity = sessionManagement.getCity();
             if (!uloadedCity.equalsIgnoreCase("")) {
                 txtLocation.setText(uloadedCity);
@@ -140,6 +125,8 @@ public class CreateProfileActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("uploaded: ", e.getMessage());
         }
+
+        //pick profile pic
         crdProfile.setOnClickListener(new View.OnClickListener() {
                                           @Override
                                           public void onClick(View v) {
@@ -156,6 +143,7 @@ public class CreateProfileActivity extends AppCompatActivity {
                                       }
         );
 
+        //get current location
         crdLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,100 +171,98 @@ public class CreateProfileActivity extends AppCompatActivity {
             }
         });
 
-
+        //submit form
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 btnSubmit.setEnabled(false);
                 btnSubmit.setVisibility(View.GONE);
                 pbr.setVisibility(View.VISIBLE);
-                String firstName = Objects.requireNonNull(edtFirstName.getText()).toString().trim();
-                String lastName = edtLastName.getText().toString().trim();
-                String phone = edtPhone.getText().toString().trim();
-                String city = sessionManagement.getCity().trim();
-                String postCode = edtPostCode.getText().toString().trim();
-
-                if (firstName != null && lastName != null && phone != null && city != null && postCode != null && firstName.length() != 0 && lastName.length() != 0 && phone.length() != 0 && city.length() != 0 && postCode.length() != 0) {
-                    btnSubmit.setVisibility(View.GONE);
-                    pbr.setVisibility(View.GONE);
+                if (isMobileDataConnected() || isWifiConnected()){
+                    String firstName = edtFirstName.getText().toString().trim();
+                    String lastName = edtLastName.getText().toString().trim();
+                    String phone = edtPhone.getText().toString().trim();
                     try {
-                        sessionManagement.setFirstName(firstName);
-                        sessionManagement.setLastName(lastName);
-                        sessionManagement.setPhone(phone);
-                        sessionManagement.setPostCode(postCode);
-                        sessionManagement.setCity(city);
-                        Toast.makeText(CreateProfileActivity.this, "Submited Sccessfully", Toast.LENGTH_SHORT).show();
-
-                    } catch (Exception e) {
-                        Log.e("onClick: Create Profile", e.getMessage());
+                        city = sessionManagement.getCity();
+                    }catch (Exception e){
+                        Log.e("session city emppty",e.getMessage());
                     }
+                    String postCode = edtPostCode.getText().toString().trim();
 
-                } else {
-                    Toast.makeText(CreateProfileActivity.this, "Please Enter Full Form", Toast.LENGTH_SHORT).show();
+                    //check all field filled or not
+                    if (firstName != null && lastName != null && phone != null && city != null && postCode != null && firstName.length() != 0 && lastName.length() != 0 && phone.length() != 0 && city.length() != 0 && postCode.length() != 0) {
+                        createProfile(firstName,lastName,phone,city,postCode);
+                    } else {
+                        Toast.makeText(CreateProfileActivity.this, "Please Enter Full Form", Toast.LENGTH_SHORT).show();
+                        btnSubmit.setEnabled(true);
+                        btnSubmit.setVisibility(View.VISIBLE);
+                        pbr.setVisibility(View.GONE);
+                    }
+                }else {
+                    Toast.makeText(CreateProfileActivity.this, "kindly connect to internetf", Toast.LENGTH_SHORT).show();
                     btnSubmit.setEnabled(true);
                     btnSubmit.setVisibility(View.VISIBLE);
                     pbr.setVisibility(View.GONE);
                 }
-
-
-                // Api UnAvailable. Methods are created
-                //createProfile(firstName,lastName,phone,city,postCode);
             }
         });
     }
 
-/*
 
+
+// call api
     private void createProfile(String firstName, String lastName, String phone, String city, String postCode) {
         ApiInterface apiInterface = ApiUtils.getData();
         JsonObject postJson = new JsonObject();
-        postJson.addProperty("firstName", firstName);
-        postJson.addProperty("lastName", lastName);
-        postJson.addProperty("phone", phone);
-        postJson.addProperty("city", city);
-        postJson.addProperty("postCode", postCode);
-       // Call<List<profileModel>> call = apiInterface.getCreateprofile(postJson);
+        postJson.addProperty("email", "eve.holt@reqres.in");
+        postJson.addProperty("password", "cityslicka");
+
+       Call<createProfileModel> call = apiInterface.getCreateprofile(postJson);
         btnSubmit.setVisibility(View.GONE);
         pbr.setVisibility(View.VISIBLE);
-        call.enqueue(new Callback<List<profileModel>>() {
+
+        call.enqueue(new Callback<createProfileModel>() {
             @Override
-            public void onResponse(Call<List<profileModel>> call, Response<List<profileModel>> response) {
-                if (response.isSuccessful()) {
-                    try {
-                        itemList = response.body();
-                        if (itemList != null && itemList.size() > 0 && itemList.get(0).condition) {
-                            Toast.makeText(CreateProfileActivity.this, "Submited SuccessFully", Toast.LENGTH_SHORT).show();
-                            AsyncTask.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                      //  sessionManagement.setUserName(itemList.get(0).user);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        } else {
-                            btnSubmit.setVisibility(View.VISIBLE);
-                            pbr.setVisibility(View.GONE);
-                            Toast.makeText(CreateProfileActivity.this, itemList.get(0).message, Toast.LENGTH_SHORT).show();
+            public void onResponse(Call<createProfileModel> call, Response<createProfileModel> response) {
+                if (response.isSuccessful()){
+                    createprofile = response.body();
+                    assert createprofile != null;
+                    String token = createprofile.token;
+                    String checkToken = "QpwL5tke4Pnpja7X4";
+                    if (checkToken.equals(token)){
+                        btnSubmit.setVisibility(View.GONE);
+                        pbr.setVisibility(View.GONE);
+                        try {
+                            sessionManagement.setFirstName(firstName);
+                            sessionManagement.setLastName(lastName);
+                            sessionManagement.setPhone(phone);
+                            sessionManagement.setPostCode(postCode);
+                            sessionManagement.setCity(city);
+                            //  Toast.makeText(CreateProfileActivity.this, "Submited Sccessfully", Toast.LENGTH_SHORT).show();
+
+                        } catch (Exception e) {
+                            Log.e("onClick: Create Profile", e.getMessage());
                         }
-                    } catch (Exception e) {
-                        Toast.makeText(CreateProfileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateProfileActivity.this, "Subimit successfuly", Toast.LENGTH_SHORT).show();
+                    }else {
+                        btnSubmit.setEnabled(true);
+                        btnSubmit.setVisibility(View.VISIBLE);
+                        pbr.setVisibility(View.GONE);
+                        Toast.makeText(CreateProfileActivity.this, "Bad creaditional", Toast.LENGTH_SHORT).show();
                     }
-                    btnSubmit.setEnabled(true);
                 }
             }
+
             @Override
-            public void onFailure(Call<List<profileModel>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Error :", Toast.LENGTH_SHORT).show();
-                btnSubmit.setVisibility(View.GONE);
-                pbr.setVisibility(View.VISIBLE);
+            public void onFailure(Call<createProfileModel> call, Throwable t) {
                 btnSubmit.setEnabled(true);
+                btnSubmit.setVisibility(View.VISIBLE);
+                pbr.setVisibility(View.GONE);
+                Toast.makeText(CreateProfileActivity.this, "Failed Response", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
-*/
 
 
     public void init() {

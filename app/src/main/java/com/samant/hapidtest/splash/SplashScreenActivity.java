@@ -1,19 +1,21 @@
-package com.samant.hapidtest;
+package com.samant.hapidtest.splash;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Window;
 import android.view.WindowManager;
+
+import com.samant.hapidtest.BaseActivity;
+import com.samant.hapidtest.R;
 
 import java.util.Objects;
 
-public class SplashScreenActivity extends AppCompatActivity {
+public class SplashScreenActivity extends BaseActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
             Objects.requireNonNull(getSupportActionBar()).hide(); // hide the title bar

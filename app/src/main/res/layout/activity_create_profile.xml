@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateProfileActivity">
+    tools:context=".profile.CreateProfileActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
@@ -235,7 +235,7 @@
                     android:drawableBottom="@null"
                     android:drawablePadding="@dimen/_7sdp"
                     android:hint="@string/select_post_code_address"
-                    android:inputType="text"
+                    android:inputType="number"
                     android:padding="@dimen/_14sdp"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_13sdp" />

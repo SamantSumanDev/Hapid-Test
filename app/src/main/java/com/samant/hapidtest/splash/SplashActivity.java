@@ -1,23 +1,27 @@
-package com.samant.hapidtest;
+package com.samant.hapidtest.splash;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
+
+import com.samant.hapidtest.BaseActivity;
+import com.samant.hapidtest.profile.CreateProfileActivity;
+import com.samant.hapidtest.R;
+import com.samant.hapidtest.login.LoginActivity;
+import com.samant.hapidtest.sessionManagement.SessionManagement;
 
 import java.util.Objects;
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends BaseActivity {
 
     AppCompatButton btnGetStarted;
     SessionManagement sessionManagement;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 

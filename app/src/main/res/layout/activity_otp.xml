@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:paddingStart="@dimen/_20sdp"
     android:paddingEnd="@dimen/_20sdp"
-    tools:context=".OtpActivity">
+    tools:context=".login.OtpActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout"

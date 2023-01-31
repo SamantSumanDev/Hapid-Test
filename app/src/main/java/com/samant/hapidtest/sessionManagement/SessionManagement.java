@@ -1,4 +1,4 @@
-package com.samant.hapidtest;
+package com.samant.hapidtest.sessionManagement;
 
 import android.content.Context;
 import android.content.SharedPreferences;

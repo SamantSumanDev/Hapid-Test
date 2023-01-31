@@ -42,6 +42,7 @@ dependencies {
     //SDP Unit
     implementation 'com.intuit.sdp:sdp-android:1.1.0'
 
+    //location
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'com.github.AravindVijay7:GeoLocator-Android:2.0.0'
 

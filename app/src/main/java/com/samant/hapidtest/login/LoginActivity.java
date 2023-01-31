@@ -1,4 +1,4 @@
-package com.samant.hapidtest;
+package com.samant.hapidtest.login;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -17,22 +17,19 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.PopupWindow;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.material.card.MaterialCardView;
+import com.samant.hapidtest.BaseActivity;
+import com.samant.hapidtest.R;
+import com.samant.hapidtest.sessionManagement.SessionManagement;
+import com.samant.hapidtest.splash.SplashActivity;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
     AppCompatButton btnRequestOtp;
     AppCompatTextView txtPrivactyPolicy;
     MaterialCardView CrdGoogle;
@@ -41,20 +38,22 @@ public class LoginActivity extends AppCompatActivity {
     AppCompatImageView back_arrow;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         Objects.requireNonNull(getSupportActionBar()).hide();
         sessionManagement = new SessionManagement(getApplicationContext());
 
         init();
+
+        //method for generate otp.
         popOtp();
         privacyPolicy();
 
         back_arrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(LoginActivity.this,SplashActivity.class);
+                Intent i = new Intent(LoginActivity.this, SplashActivity.class);
                 startActivity(i);
                 finish();
             }

@@ -1,4 +1,4 @@
-package com.samant.hapidtest;
+package com.samant.hapidtest.login;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -7,7 +7,6 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -19,9 +18,14 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.samant.hapidtest.BaseActivity;
+import com.samant.hapidtest.profile.CreateProfileActivity;
+import com.samant.hapidtest.R;
+import com.samant.hapidtest.sessionManagement.SessionManagement;
+
 import java.util.Objects;
 
-public class OtpActivity extends AppCompatActivity {
+public class OtpActivity extends BaseActivity {
 
     AppCompatTextView txtViewReceiveOtp;
     AppCompatTextView txtotp1, txtotp2, txtotp3, txtotp4;
@@ -35,12 +39,14 @@ public class OtpActivity extends AppCompatActivity {
     AppCompatImageView back_arrow;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_otp);
         Objects.requireNonNull(getSupportActionBar()).hide();
         sessionManagement = new SessionManagement(getApplicationContext());
         init();
+        checkdOtp();
+
 
         back_arrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,8 +58,6 @@ public class OtpActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
         txtShowMobileNo.setText("+91 " + sessionManagement.getMobileNo());
         txtresendOtp();
         imgEdtMobileNo.setOnClickListener(new View.OnClickListener() {
@@ -66,7 +70,6 @@ public class OtpActivity extends AppCompatActivity {
                 finish();
             }
         });
-        generatedOtp();
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -169,7 +172,7 @@ public class OtpActivity extends AppCompatActivity {
 
     }
 
-    private void generatedOtp() {
+    private void checkdOtp() {
         txtotp1.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
